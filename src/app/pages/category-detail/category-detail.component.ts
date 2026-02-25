@@ -8,12 +8,14 @@ import {
   AsvsCategory, EnhancedRequirement, VerificationLevel, RequirementStatus, AssessmentMap
 } from '../../models/asvs.model';
 import { LevelFilterComponent } from '../../components/molecules/level-filter/level-filter.component';
+import { AiHelpModalComponent } from '../../components/organisms/ai-help-modal/ai-help-modal.component';
+import { ExportService } from '../../services/export';
 
 @Component({
   selector: 'app-category-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, LevelFilterComponent],
+  imports: [CommonModule, LevelFilterComponent, AiHelpModalComponent],
   template: `
     <!-- Header bar -->
     <div class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-neutral-200 shadow-sm">
@@ -29,6 +31,15 @@ import { LevelFilterComponent } from '../../components/molecules/level-filter/le
         </button>
         <div class="hidden sm:block h-5 w-px bg-neutral-300"></div>
         <h1 class="text-xl font-bold text-neutral-900 flex-1">{{ categoryName }}</h1>
+        <button
+          (click)="exportCsv()"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Export CSV
+        </button>
         <!-- mini progress bar -->
         <div class="flex items-center gap-3 text-sm">
           <span class="text-success-600 font-semibold">✓ {{ progress.pass }}</span>
@@ -190,6 +201,18 @@ import { LevelFilterComponent } from '../../components/molecules/level-filter/le
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                   </button>
+
+                  <!-- Ask AI -->
+                  <button
+                    (click)="openAiHelp(req)"
+                    title="Ask AI for implementation help"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold border border-primary-300 text-primary-600 bg-white hover:bg-primary-50 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary-400"
+                  >
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    Ask AI
+                  </button>
                 </div>
               </div>
             </div>
@@ -198,6 +221,13 @@ import { LevelFilterComponent } from '../../components/molecules/level-filter/le
 
       </div>
     </main>
+
+    <!-- AI Help Modal -->
+    <app-ai-help-modal
+      *ngIf="activeHelpReq"
+      [requirement]="activeHelpReq"
+      (close)="closeAiHelp()"
+    ></app-ai-help-modal>
   `,
 })
 export class CategoryDetailComponent implements OnInit, OnDestroy {
@@ -209,12 +239,14 @@ export class CategoryDetailComponent implements OnInit, OnDestroy {
   loading = true;
   assessments: AssessmentMap = {};
   progress = { pass: 0, fail: 0, notApplicable: 0, pending: 0, total: 0 };
+  activeHelpReq: EnhancedRequirement | null = null;
 
   private destroy$ = new Subject<void>();
   private asvsService = inject(AsvsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private exportService = inject(ExportService);
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -305,4 +337,15 @@ export class CategoryDetailComponent implements OnInit, OnDestroy {
 
   goBack(): void { this.router.navigate(['/']); }
   trackByReqId(_: number, req: EnhancedRequirement): string { return req['#']; }
+  exportCsv(): void { this.exportService.exportToCsv(); }
+
+  openAiHelp(req: EnhancedRequirement): void {
+    this.activeHelpReq = req;
+    this.cdr.markForCheck();
+  }
+
+  closeAiHelp(): void {
+    this.activeHelpReq = null;
+    this.cdr.markForCheck();
+  }
 }

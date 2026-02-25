@@ -1,44 +1,39 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CardComponent } from '../../atoms/card/card.component';
-import { BadgeComponent } from '../../atoms/badge/badge.component';
-import { ButtonComponent } from '../../atoms/button/button.component';
+import { RouterModule } from '@angular/router';
 import { AsvsCategory } from '../../../models/asvs.model';
 
 /**
  * CategoryCard Molecule Component
- * Displays a category with count and action button
+ * Displays a category with count; entire card navigates to the detail page.
  */
 @Component({
   selector: 'app-category-card',
   standalone: true,
-  imports: [CommonModule, CardComponent, BadgeComponent, ButtonComponent],
+  imports: [CommonModule, RouterModule],
   template: `
-    <app-card variant="outlined" [hoverable]="true" [clickable]="true">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xl font-semibold text-neutral-900">{{ categoryName }}</h3>
-        <app-badge variant="primary" size="md">
-          {{ count }} items
-        </app-badge>
+    <a
+      [routerLink]="['/category', category]"
+      class="block group bg-white border border-neutral-200 rounded-xl p-6 shadow-sm
+             hover:shadow-md hover:border-primary-300 transition-all duration-200 cursor-pointer
+             focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+    >
+      <div class="flex items-start justify-between mb-3">
+        <h3 class="text-lg font-bold text-neutral-900 group-hover:text-primary-700 transition-colors leading-tight">
+          {{ categoryName }}
+        </h3>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700 ml-2 flex-shrink-0">
+          {{ count }}
+        </span>
       </div>
-      <p class="text-neutral-600 text-sm mb-4">{{ description }}</p>
-      <div class="flex gap-2">
-        <app-button
-          variant="primary"
-          size="sm"
-          (btnClick)="onViewClick()"
-        >
-          View Requirements
-        </app-button>
-        <app-button
-          variant="ghost"
-          size="sm"
-          (btnClick)="onMoreClick()"
-        >
-          More Info
-        </app-button>
+      <p class="text-neutral-500 text-sm mb-5 leading-relaxed">{{ description }}</p>
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-semibold text-primary-600 group-hover:text-primary-700">
+          View Requirements →
+        </span>
+        <span class="text-xs text-neutral-400">{{ count }} items</span>
       </div>
-    </app-card>
+    </a>
   `,
 })
 export class CategoryCardComponent {
@@ -49,12 +44,4 @@ export class CategoryCardComponent {
 
   @Output() viewRequirements = new EventEmitter<AsvsCategory>();
   @Output() moreInfo = new EventEmitter<AsvsCategory>();
-
-  onViewClick(): void {
-    this.viewRequirements.emit(this.category);
-  }
-
-  onMoreClick(): void {
-    this.moreInfo.emit(this.category);
-  }
 }

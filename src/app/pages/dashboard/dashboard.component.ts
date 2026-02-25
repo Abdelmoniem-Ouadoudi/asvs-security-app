@@ -10,6 +10,7 @@ import { CategoryGridComponent } from '../../components/organisms/category-grid/
 import { RequirementListComponent } from '../../components/organisms/requirement-list/requirement-list.component';
 
 import { AsvsService } from '../../services/asvs';
+import { ExportService } from '../../services/export';
 import { AsvsCategory, AsvsData, EnhancedRequirement, VerificationLevel } from '../../models/asvs.model';
 
 /**
@@ -115,6 +116,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private asvsService = inject(AsvsService);
+  private exportService = inject(ExportService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
 
@@ -214,8 +216,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onExport(): void {
-    console.log('Export functionality to be implemented');
-    // TODO: Implement export to CSV/PDF
+    this.exportService.exportToCsv();
   }
 
   onViewCategory(category: AsvsCategory): void {

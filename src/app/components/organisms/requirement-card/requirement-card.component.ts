@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { CardComponent } from '../../atoms/card/card.component';
 import { BadgeComponent } from '../../atoms/badge/badge.component';
 import { TagComponent } from '../../atoms/tag/tag.component';
@@ -12,7 +13,7 @@ import { EnhancedRequirement } from '../../../models/asvs.model';
 @Component({
   selector: 'app-requirement-card',
   standalone: true,
-  imports: [CommonModule, CardComponent, BadgeComponent, TagComponent],
+  imports: [CommonModule, RouterModule, CardComponent, BadgeComponent, TagComponent],
   template: `
     <app-card variant="outlined" [hoverable]="true">
       <!-- Header with ID, Name, and Category -->
@@ -65,7 +66,7 @@ import { EnhancedRequirement } from '../../../models/asvs.model';
       <div class="flex items-center justify-between pt-3 border-t border-neutral-200">
         <span class="text-xs text-neutral-500">Category: <span class="font-medium">{{ requirement.category }}</span></span>
         <a
-          href="#"
+          [routerLink]="['/category', requirement.category]"
           class="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors"
         >
           View Details →

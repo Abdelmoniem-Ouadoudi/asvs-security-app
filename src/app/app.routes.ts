@@ -11,6 +11,13 @@ export const routes: Routes = [
     component: DashboardComponent,
   },
   {
+    path: 'category/:category',
+    loadComponent: () =>
+      import('./pages/category-detail/category-detail.component').then(
+        (m) => m.CategoryDetailComponent
+      ),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
